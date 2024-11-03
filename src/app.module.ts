@@ -42,6 +42,7 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
             username: 'postgres',
             password: 'dk',// скрыть через useFactory
             database: 'newDBforBloggersPlatform',
+            // database: 'newDBforBloggersPlatform',
             autoLoadEntities: true,
             synchronize: true,
           }
@@ -60,16 +61,6 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
     //   },
     //   inject: [ConfigService],
     // }),
-    // // MongooseModule.forRoot(SETTINGS.MONGO_URL),
-    // MongooseModule.forFeature([
-    //   { name: User.name, schema: UserSchema },//-
-    //   // { name: Comment.name, schema: CommentSchema },
-    //   // { name: Blog.name, schema: BlogSchema },
-    //   // { name: Post.name, schema: PostSchema },
-    //   // { name: Session.name, schema: SessionSchema },//-
-    //   // { name: ApiInfo.name, schema: ApiSchema },//-
-    //   // { name: Like.name, schema: LikesSchema },
-    // ]),
     JwtModule.registerAsync({
       global: true,
       useFactory:(configService: ConfigService<ConfigurationType, true>) => {
