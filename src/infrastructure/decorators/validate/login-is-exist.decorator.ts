@@ -6,7 +6,8 @@ import {
     ValidatorConstraint,
     ValidatorConstraintInterface,
 } from 'class-validator';
-import { UserRepository } from 'src/features/users/repository/users-sql-repository';
+// import { UserRepository } from 'src/features/users/repository/users-sql-repository';
+import { UserRepository } from 'src/features/users/repository/users.typeorm.repository';
 
 // Обязательна регистрация в ioc
 @ValidatorConstraint({ name: 'LoginIsExist', async: true })

@@ -7,7 +7,8 @@ import { BasicAuthGuard } from "src/infrastructure/guards/basic.guard";
 import { BasicGuard } from "src/infrastructure/guards/dubl-guards/basic-auth.guard";
 import { CreateUserCommand} from "../application/use-cases/create-user";
 import { CommandBus } from "@nestjs/cqrs";
-import { UserRepository } from "../repository/users-sql-repository";
+// import { UserRepository } from "../repository/users-sql-repository";
+import { UserRepository } from "../repository/users.typeorm.repository";
 
 @Controller('sa/users')
 @UseGuards(BasicAuthGuard)

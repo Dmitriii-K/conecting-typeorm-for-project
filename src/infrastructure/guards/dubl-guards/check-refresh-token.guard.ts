@@ -1,8 +1,10 @@
 import {CanActivate, ExecutionContext, Injectable, UnauthorizedException} from '@nestjs/common';
 import {Request} from "express";
-import { UserRepository } from 'src/features/users/repository/users-sql-repository';
+// import { UserRepository } from 'src/features/users/repository/users-sql-repository';
+import { UserRepository } from 'src/features/users/repository/users.typeorm.repository';
 import { JwtService } from '../../adapters/jwt.pasport-service';
-import { SessionRepository } from 'src/features/sessions/repository/session.sql.repository';
+// import { SessionRepository } from 'src/features/sessions/repository/session.sql.repository';
+import { SessionRepository } from 'src/features/sessions/repository/session.typeorm.repository';
 
 @Injectable()
 export class CheckTokenAuthGuard implements CanActivate {

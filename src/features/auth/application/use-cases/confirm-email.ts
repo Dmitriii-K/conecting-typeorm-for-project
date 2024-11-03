@@ -1,7 +1,8 @@
 import { CommandHandler } from "@nestjs/cqrs";
-import { UserRepository } from "src/features/users/repository/users-sql-repository";
+// import { UserRepository } from "src/features/users/repository/users-sql-repository";
+import { UserRepository } from "src/features/users/repository/users.typeorm.repository";
 import { BadRequestException } from "@nestjs/common";
-import { User } from "src/features/users/domain/user.sql.entity";
+import { User } from "src/features/users/domain/user.typeorm.entity";
 
 export class ConfirmEmailCommand {
     constructor(public code: string ) {}
@@ -13,9 +14,9 @@ export class ConfirmEmailUseCase {
 
     async execute(command: ConfirmEmailCommand) {
         const {code} = command;
-        // console.log(code);//-----------------------
+        // console.log('code', code);//-----------------------
         const user: User | null = await this.userRepository.findUserByCode(code);
-        // console.log(user);//-----------------------
+        // console.log('user', user);//-----------------------
         if (!user) {
             throw new BadRequestException({ errorsMessages: { message: "This user is incorrect", field: "code" } });
         }

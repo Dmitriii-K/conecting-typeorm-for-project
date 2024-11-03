@@ -1,7 +1,8 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { JwtService } from "src/infrastructure/adapters/jwt.pasport-service";
-import { Session } from "src/features/sessions/domain/session.sql.entity";
-import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
+// import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
+import { SessionRepository } from "src/features/sessions/repository/session.typeorm.repository";
+import { Session } from "src/features/sessions/domain/session.typeorm.entity";
 
 export class CreateSessionCommand {
     constructor(

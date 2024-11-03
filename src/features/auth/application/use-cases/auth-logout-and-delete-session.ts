@@ -1,5 +1,6 @@
 import { CommandHandler } from "@nestjs/cqrs";
-import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
+// import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
+import { SessionRepository } from "src/features/sessions/repository/session.typeorm.repository";
 
 export class AuthLogoutAndDeleteSessionCommand {
     constructor(public deviceId: string ) {}

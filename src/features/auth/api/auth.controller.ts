@@ -16,11 +16,12 @@ import { NewPasswordCommand } from "../application/use-cases/new-password";
 import { UpdateRefreshTokenCommand } from "../application/use-cases/update-refresh-token";
 import { PasswordRecoveryCommand } from "../application/use-cases/password-recovery";
 import { ResendEmailCommand } from "../application/use-cases/resend-email";
-import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
+// import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
+import { SessionRepository } from "src/features/sessions/repository/session.typeorm.repository";
 import { ConfirmEmailCommand } from "../application/use-cases/confirm-email";
 import { AuthLogoutAndDeleteSessionCommand } from "../application/use-cases/auth-logout-and-delete-session";
 
-@UseGuards(ThrottlerGuard)
+// @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController{
     constructor(
@@ -67,7 +68,7 @@ export class AuthController{
         return newPassword;
     }
 
-    @SkipThrottle()
+    // @SkipThrottle()
     @UseGuards(CheckTokenAuthGuard)
     @Post('refresh-token')//-----------------
     async authRefreshToken(
@@ -121,7 +122,7 @@ export class AuthController{
         return emailResending;
     }
 
-    @SkipThrottle()
+    // @SkipThrottle()
     @UseGuards(CheckTokenAuthGuard)
     @Post('logout')//---------------------
     @HttpCode(204)
@@ -143,7 +144,7 @@ export class AuthController{
         return res.sendStatus(418);
     }
 
-    @SkipThrottle()
+    // @SkipThrottle()
     @UseGuards(JwtAuthGuard)
     @Get('me')//----------------------
     async getUserInform(

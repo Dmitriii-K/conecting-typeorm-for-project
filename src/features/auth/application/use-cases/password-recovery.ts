@@ -2,7 +2,8 @@ import { BadRequestException } from "@nestjs/common";
 import { CommandHandler } from "@nestjs/cqrs";
 import { randomUUID } from "crypto";
 import { EmailService } from "src/infrastructure/adapters/sendEmail";
-import { UserRepository } from "src/features/users/repository/users-sql-repository";
+// import { UserRepository } from "src/features/users/repository/users-sql-repository";
+import { UserRepository } from "src/features/users/repository/users.typeorm.repository";
 import { User } from "src/features/users/domain/user.sql.entity";
 
 export class PasswordRecoveryCommand {

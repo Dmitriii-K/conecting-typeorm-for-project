@@ -1,7 +1,8 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { JwtService } from "src/infrastructure/adapters/jwt.pasport-service";
 import { MeViewModel } from "../../api/models/output.model";
-import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
+// import { SessionRepository } from "src/features/sessions/repository/session.sql.repository";
+import { SessionRepository } from "src/features/sessions/repository/session.typeorm.repository";
 
 export class UpdateRefreshTokenCommand {
     constructor(

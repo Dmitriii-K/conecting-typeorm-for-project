@@ -1,6 +1,7 @@
 import {CanActivate, ExecutionContext, Injectable, UnauthorizedException} from '@nestjs/common';
 import {Request} from "express";
-import { UserRepository } from 'src/features/users/repository/users-sql-repository';
+// import { UserRepository } from 'src/features/users/repository/users-sql-repository';
+import { UserRepository } from 'src/features/users/repository/users.typeorm.repository';
 import { JwtService } from 'src/infrastructure/adapters/jwt.pasport-service';
 
 @Injectable()

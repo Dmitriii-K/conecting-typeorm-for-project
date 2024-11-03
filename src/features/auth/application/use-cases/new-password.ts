@@ -1,7 +1,8 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { NewPasswordRecoveryInputModel } from "../../api/models/input.model";
 import { BcryptService } from "src/infrastructure/adapters/bcrypt";
-import { UserRepository } from "src/features/users/repository/users-sql-repository";
+// import { UserRepository } from "src/features/users/repository/users-sql-repository";
+import { UserRepository } from "src/features/users/repository/users.typeorm.repository";
 import { User } from "src/features/users/domain/user.sql.entity";
 
 export class NewPasswordCommand {
