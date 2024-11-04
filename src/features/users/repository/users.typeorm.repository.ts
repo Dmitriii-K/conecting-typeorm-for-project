@@ -43,7 +43,7 @@ export class UserRepository {
 
     // async deleteUser(userId: string): Promise<boolean> {
     //     const result = await this.usersRepository.delete(userId);
-    //     return result.affected > 0;
+    //     return result.affected !== undefined && result.affected > 0;
     // }
         async deleteUser(userId: string): Promise<boolean> {
         const result = await this.usersRepository.delete(userId);
@@ -56,7 +56,7 @@ export class UserRepository {
 
     // async updatePassword(userId: string, pass: string): Promise<boolean> {
     //     const result = await this.usersRepository.update(userId, { password: pass });
-    //     return result.affected > 0;
+    //     return result.affected !== undefined && result.affected > 0;
     // }
         async updatePassword(userId: string, pass: string): Promise<boolean> {
         const result = await this.usersRepository.update(userId, { password: pass });
@@ -96,10 +96,15 @@ export class UserRepository {
 
     // async updateConfirmation(userId: string): Promise<boolean> {
     //     const result = await this.usersRepository.update(userId, { isConfirmed: true });
-    //     return result.affected > 0;
+    //     return result.affected !== undefined && result.affected > 0;
     // }
-        async updateConfirmation(userId: string): Promise<boolean> {
-        const result = await this.usersRepository.update(userId, { isConfirmed: true });
-        return result.raw > 0;
+    async updateConfirmation(userId: string): Promise<boolean> {
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            return false;
+        }
+        user.isConfirmed = true;
+        await this.usersRepository.save(user);
+        return true;
     }
 }

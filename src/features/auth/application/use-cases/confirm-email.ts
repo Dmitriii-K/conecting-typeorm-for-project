@@ -31,6 +31,7 @@ export class ConfirmEmailUseCase {
             throw new BadRequestException({ errorsMessages: { message: "Expiration date is over", field: "code" } });
         }
         const result = await this.userRepository.updateConfirmation(user.id);
+        // console.log('updateConfirmation', result);//-----------------------
         return result;
     }
 }

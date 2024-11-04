@@ -42,6 +42,7 @@ export class SessionController {
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request) {
             const findSession = await this.sessionsService.findUserByDeviceId(id);
+            // console.log('session', findSession);//--------------------
             if (!findSession) {
                 throw new NotFoundException();
             } else {
@@ -51,9 +52,6 @@ export class SessionController {
             }
 
         const deleteDevice = await this.sessionsService.deleteSessionById(id);
-            if (!deleteDevice) {
-                throw new NotFoundException();
-            }
-            return deleteDevice;
+        return deleteDevice;
     }
 }

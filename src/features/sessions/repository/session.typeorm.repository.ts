@@ -11,9 +11,18 @@ export class SessionRepository {
 
     async deleteSessionById(deviceId: string): Promise<boolean> {
         const result = await this.sessionsRepository.delete({ device_id: deviceId })
+        // console.log('result', result);//--------------------
         return result.raw > 0;
     }
 
+    // async deleteAllSessionsExceptCurrentOne(userId: string, deviceId: string): Promise<boolean> {
+    //     const query = `
+    //         DELETE FROM "Sessions"
+    //         WHERE user_id = $1 AND device_id <> $2
+    //     `;
+    //     const result = await this.dataSource.query(query, [userId, deviceId]);
+    //     return result.rowCount > 0;
+    // }
     async deleteAllSessionsExceptCurrentOne(userId: string, deviceId: string): Promise<boolean> {
         const result = await this.sessionsRepository
             .createQueryBuilder()
@@ -33,13 +42,13 @@ export class SessionRepository {
         return this.sessionsRepository.findOne({ where: { device_id: deviceId } });
     }
 
+    async findSessionFromDeviceId(deviceId: string): Promise<Session | null> {
+        return this.sessionsRepository.findOne({ where: { device_id: deviceId } });
+    }
+
     async createSession(session: Session): Promise<string> {
         const result = await this.sessionsRepository.insert(session)
         return result.identifiers[0].id;
-    }
-
-    async findSessionFromDeviceId(deviceId: string): Promise<Session | null> {
-        return this.sessionsRepository.findOne({ where: { device_id: deviceId } });
     }
 
     async updateIat(iat: string, deviceId: string): Promise<void> {
@@ -48,6 +57,7 @@ export class SessionRepository {
 
     async deleteSession(deviceId: string): Promise<boolean> {
         const result = await this.sessionsRepository.delete({ device_id: deviceId });
-        return result.raw > 0;
+        // console.log('result', result);//--------------------
+        return result.affected !== undefined && result.affected !== null && result.affected > 0;
     }
 }

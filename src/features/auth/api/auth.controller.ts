@@ -21,7 +21,7 @@ import { SessionRepository } from "src/features/sessions/repository/session.type
 import { ConfirmEmailCommand } from "../application/use-cases/confirm-email";
 import { AuthLogoutAndDeleteSessionCommand } from "../application/use-cases/auth-logout-and-delete-session";
 
-// @UseGuards(ThrottlerGuard)
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController{
     constructor(
@@ -36,8 +36,9 @@ export class AuthController{
     async authLoginUser(
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request) {
+            // console.log('user', req.user)//-----------------------
             if(!req.user) throw new UnauthorizedException()
-            const { accessToken, refreshToken } = this.jwtService.generateToken(req.user); // ???
+            const { accessToken, refreshToken } = this.jwtService.generateToken(req.user);
 
             await this.commandBus.execute(new CreateSessionCommand(
                 req.user!.userId,
@@ -68,7 +69,7 @@ export class AuthController{
         return newPassword;
     }
 
-    // @SkipThrottle()
+    @SkipThrottle()
     @UseGuards(CheckTokenAuthGuard)
     @Post('refresh-token')//-----------------
     async authRefreshToken(
@@ -122,7 +123,7 @@ export class AuthController{
         return emailResending;
     }
 
-    // @SkipThrottle()
+    @SkipThrottle()
     @UseGuards(CheckTokenAuthGuard)
     @Post('logout')//---------------------
     @HttpCode(204)
@@ -130,13 +131,13 @@ export class AuthController{
         @Res() res: Response,
         @Req() req: Request) {
             if(!req.deviceId) throw new UnauthorizedException();
-            const device = await this.sessionRepository.findSessionFromDeviceId(req.deviceId); // ???
-            // console.log(device);//-----------
-            if (!device) {
+            const session = await this.sessionRepository.findSessionFromDeviceId(req.deviceId);
+            // console.log('session', session);//--------------------
+            if (!session) {
                 throw new UnauthorizedException();
             }
             // const result = await this.authService.authLogoutAndDeleteSession(req.deviceId);
-            const result = await this.commandBus.execute(new AuthLogoutAndDeleteSessionCommand(req.deviceId));
+            const result = await this.commandBus.execute(new AuthLogoutAndDeleteSessionCommand(session.device_id));
             if (result) {
                 res.clearCookie('refreshToken').sendStatus(204);
                 return
@@ -144,7 +145,7 @@ export class AuthController{
         return res.sendStatus(418);
     }
 
-    // @SkipThrottle()
+    @SkipThrottle()
     @UseGuards(JwtAuthGuard)
     @Get('me')//----------------------
     async getUserInform(

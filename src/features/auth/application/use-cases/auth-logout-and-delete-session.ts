@@ -13,6 +13,7 @@ export class AuthLogoutAndDeleteSessionUseCase {
     async execute(command: AuthLogoutAndDeleteSessionCommand) {
         const {deviceId} = command;
         const deletedSession = await this.sessionRepository.deleteSession(deviceId);
+        // console.log('deletedSession', deletedSession);//--------------------
         if (deletedSession) {
             return true;
         } else {
