@@ -3,24 +3,23 @@ import { randomUUID } from 'crypto';
 
 @Entity('Blogs')
 export class Blog {
-@PrimaryColumn('uuid')
-id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-@Column({ type: 'varchar', nullable: false })
-name: string;
+    @Column({ type: 'varchar', collation: 'C', nullable: false })
+    name: string;
 
-@Column({ type: 'text', nullable: false })
-description: string;
+    @Column({ type: 'text', nullable: false })
+    description: string;
 
-@Column({ type: 'varchar', nullable: false })
-websiteUrl: string;
+    @Column({ type: 'varchar', nullable: false })
+    websiteUrl: string;
 
-// @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
-@CreateDateColumn()
-createdAt: Date;
+    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
 
-@Column({ type: 'boolean', nullable: false, default: false })
-isMembership: boolean;
+    @Column({ type: 'boolean', nullable: false, default: false })
+    isMembership: boolean;
 
     static createBlog(name: string, description: string, websiteUrl: string): Blog {
         const blog = new Blog();
@@ -35,3 +34,4 @@ isMembership: boolean;
         return blog;
     }
 }
+

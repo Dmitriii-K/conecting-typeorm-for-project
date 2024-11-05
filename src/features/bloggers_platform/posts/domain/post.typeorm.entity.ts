@@ -1,12 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, PrimaryColumn, CreateDateColumn } from 'typeorm';
 import { randomUUID } from 'crypto';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Blog } from '../../blogs/domain/blog.typeorm.entity';
 
-@Entity()
+@Entity('Posts')
 export class Post {
-    @PrimaryColumn('uuid')
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', collation: 'C', nullable: false })
     title: string;
 
     @Column({ type: 'text', nullable: false })
@@ -18,7 +19,11 @@ export class Post {
     @Column({ type: 'uuid', nullable: false })
     blogId: string;
 
-    @CreateDateColumn()
+    @ManyToOne(() => Blog, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'blogId' })
+    blog: Blog;
+
+    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
     static createPost(title: string, shortDescription: string, content: string, blogId: string): Post {
@@ -30,7 +35,8 @@ export class Post {
         post.content = content;
         post.blogId = blogId;
         post.createdAt = new Date();
-
+    
         return post;
     }
 }
+

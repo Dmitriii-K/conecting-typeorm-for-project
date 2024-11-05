@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Post, Put, Query, Req, Res, UseGuards } from "@nestjs/common";
 import { BlogService } from "../application/blog.service";
-import { BlogQueryRepository } from "../repository/blog.sql.query-repository";
+import { BlogQueryRepository } from "../repository/blog.typeorm.query-repository";
 import { TypeBlogHalper, TypePostForBlogHalper } from "src/base/types/blog.types";
 import { PaginatorBlogViewModel } from "./models/output.model";
 import { BlogInputModel, BlogPostInputModel } from "./models/input.model";
-import { BlogRepository } from "../repository/blog.sql.repository";
+import { BlogRepository } from "../repository/blog.typeorm.repository";
 import { BlogExistsPipe } from "src/infrastructure/pipes/blogExists.pipe";
 import { Request, Response } from "express";
 import { BasicAuthGuard } from "src/infrastructure/guards/basic.guard";
@@ -12,7 +12,7 @@ import { SoftAuthGuard } from "src/infrastructure/guards/dubl-guards/soft-auth.g
 import { CommandBus } from "@nestjs/cqrs";
 import { CreatePostForBlogCommand } from "../application/use-cases/create-post-for-blog";
 import { PostService } from "../../posts/application/post.service";
-import { PostRepository } from "../../posts/repository/post.sql.repository";
+import { PostRepository } from "../../posts/repository/post.typeorm.repository";
 
 
 @Controller('sa/blogs')
@@ -27,14 +27,14 @@ export class BlogControllerSa {
     ) {}
 
     @UseGuards(BasicAuthGuard)
-    @Get()
+    @Get()//-------------
     async getAllBlogs(@Query() query: TypeBlogHalper) {
         const blogs: PaginatorBlogViewModel = await this.blogQueryRepository.getAllBlogs(query);
         return blogs;
     }
 
     @UseGuards(BasicAuthGuard)
-    @Post()
+    @Post()//---------------
     async createBlog(@Body() body: BlogInputModel) {
         const createResult = await this.blogService.createBlog(body);
         // console.log(createResult);//---------------------
@@ -46,7 +46,7 @@ export class BlogControllerSa {
     }
 
     @UseGuards(SoftAuthGuard, BasicAuthGuard)
-    @Get(':id/posts')
+    @Get(':id/posts')//-----------------
     async getPostsForBlog(
         @Query() query: TypePostForBlogHalper,
         @Param('id', BlogExistsPipe) id: string,
@@ -61,7 +61,7 @@ export class BlogControllerSa {
     }
 
     @UseGuards(BasicAuthGuard)
-    @Post(':id/posts')
+    @Post(':id/posts')//-----------------
     async createPostForBlog(
         @Param('id') id: string,
         @Body() body: BlogPostInputModel) {
@@ -70,18 +70,20 @@ export class BlogControllerSa {
                 throw new NotFoundException();
             }
             // const createResult = await this.blogService.createPostForBlog(id, body, findBlog.name);
-            const createResult = await this.commandBus.execute(new CreatePostForBlogCommand(id, body));// вернуть blogId???
+            const createResult = await this.commandBus.execute(new CreatePostForBlogCommand(id, body));
+            // console.log('postId', createResult)//-----------------------
             const newPostForBlog = await this.blogQueryRepository.getPostForBlogById(createResult);
             return newPostForBlog;
     }
 
     @UseGuards(BasicAuthGuard)
-    @Put(':id')
+    @Put(':id')//-------------
     @HttpCode(204)
     async updateBlog(
         @Param('id') id: string,
         @Body() body: BlogInputModel) {
             const findBlog = await this.blogService.findBlogById(id);
+            // console.log('Blog', findBlog)//--------------------------------
             if (!findBlog) {
                 throw new NotFoundException();
             }
@@ -90,7 +92,7 @@ export class BlogControllerSa {
     }
 
     @UseGuards(BasicAuthGuard)
-    @Delete(':id')
+    @Delete(':id')//--------------
     @HttpCode(204)
     async deleteBlog(@Param('id') id: string) {
         const deleteResult = await this.blogService.deleteBlog(id);
@@ -101,12 +103,13 @@ export class BlogControllerSa {
 
     @UseGuards(BasicAuthGuard)
     @Put(':blogId/posts/:postId')
-    @HttpCode(204)
+    @HttpCode(204)//----------------
     async updatePostByIdForBlogId(
         @Param('blogId') blogId: string,
         @Param('postId') postId: string, 
         @Body() body: BlogPostInputModel) {
             const findPost = await this.postService.findPostForBlogById(blogId);
+            // console.log('Post', findPost)//--------------------------------
             if (!findPost) {
                 throw new NotFoundException();
             }
@@ -119,7 +122,7 @@ export class BlogControllerSa {
 
     @UseGuards(BasicAuthGuard)
     @Delete(':blogId/posts/:postId')
-    @HttpCode(204)
+    @HttpCode(204)//-------------------
     async deletePostByIdForBlogId(
         @Param('blogId') blogId: string,
         @Param('postId') postId: string) {
