@@ -25,7 +25,7 @@ export class PostController {
     ) {}
 
     @UseGuards(JwtAuthGuard)
-    @Put(':id/like-status')
+    @Put(':id/like-status')//-----------
     @HttpCode(204)
     async updateLikeStatus(
         @Param('id') id: string,
@@ -45,7 +45,7 @@ export class PostController {
     }
 
     @UseGuards(SoftAuthGuard)
-    @Get(':id/comments')
+    @Get(':id/comments')//--------------
     async getCommentByPost(
         @Query() query: TypePostHalper,
         @Param('id') id: string,
@@ -61,7 +61,7 @@ export class PostController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post(':id/comments')
+    @Post(':id/comments')//--------------
     async createCommentByPostId(
         @Body() body: CommentInputModel,
         @Param('id') id: string,
