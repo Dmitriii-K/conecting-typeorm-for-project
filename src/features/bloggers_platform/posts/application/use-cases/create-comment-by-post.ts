@@ -4,7 +4,7 @@ import { CommandHandler } from "@nestjs/cqrs";
 import { CommentInputModel } from "src/features/bloggers_platform/comments/api/models/input.model";
 import { NotFoundException } from "@nestjs/common";
 import { Comment } from "src/features/bloggers_platform/comments/domain/comment.sql.entity";
-import { CommentRepository } from "src/features/bloggers_platform/comments/repository/comment.sql.repository";
+import { CommentRepository } from "src/features/bloggers_platform/comments/repository/comment.typeorm.repository";
 
 export class CreateCommentByPostCommand {
     constructor(

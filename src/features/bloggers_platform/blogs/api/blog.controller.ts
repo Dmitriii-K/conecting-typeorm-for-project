@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Post, Put, Query, Req, Res, UseGuards } from "@nestjs/common";
+import { Controller, Get, NotFoundException, Param, Query, Req, Res, UseGuards } from "@nestjs/common";
 import { BlogService } from "../application/blog.service";
-import { BlogQueryRepository } from "../repository/blog.typeorm.query-repository";
+// import { BlogQueryRepository } from "../repository/blog.typeorm.query-repository";
+import { BlogQueryRepository } from "../repository/blog.sql.query-repository";
 import { TypeBlogHalper, TypePostForBlogHalper } from "src/base/types/blog.types";
 import { PaginatorBlogViewModel } from "./models/output.model";
 import { BlogRepository } from "../repository/blog.typeorm.repository";

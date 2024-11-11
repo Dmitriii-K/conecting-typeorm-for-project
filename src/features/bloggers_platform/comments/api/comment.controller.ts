@@ -21,7 +21,7 @@ export class CommentController {
     
     @UseGuards(JwtAuthGuard)
     @Put(':id/like-status')
-    @HttpCode(204)//------------
+    @HttpCode(204)
     async likeStatus(
         @Param('id') id: string,
         @Body() body: LikeStatusDto,
@@ -40,7 +40,7 @@ export class CommentController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Put(':id')//------------------
+    @Put(':id')
     @HttpCode(204)
     async updateComment(
         @Param('id') id: string,
@@ -60,7 +60,7 @@ export class CommentController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Delete(':id')//------------------
+    @Delete(':id')
     @HttpCode(204)
     async deleteComment(
         @Param('id') id: string,
@@ -80,7 +80,7 @@ export class CommentController {
     }
 
     @UseGuards(SoftAuthGuard)
-    @Get(':id')//-----------------
+    @Get(':id')
     async getComment(
         @Param('id') id: string,
         @Res({ passthrough: true }) res: Response,
