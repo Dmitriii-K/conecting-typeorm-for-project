@@ -1,8 +1,8 @@
 import { likeStatus } from "src/features/bloggers_platform/likes/api/models/input.model";
-import { CommentsLike } from "src/features/bloggers_platform/likes/domain/CommentLike.sql.entity";
-import { CommentRepository } from "../../repository/comment.sql.repository";
+import { CommentRepository } from "../../repository/comment.typeorm.repository";
 import { CommentViewModel } from "../../api/models/output.model";
 import { CommandHandler } from "@nestjs/cqrs";
+import { CommentLike } from "src/features/bloggers_platform/likes/domain/CommentLike.typeorm.entity";
 
 export class LikeStatusCommand {
     constructor(
@@ -21,7 +21,7 @@ export class LikeStatusUseCase {
 
         const existCommentLike = await this.commentRepository.findCommentLike(comment.id, userId);
         if (!existCommentLike) {
-            const newCommentLike: CommentsLike = CommentsLike.createCommentLike(userId, comment.id, body);
+            const newCommentLike: CommentLike = CommentLike.createCommentLike(userId, comment.id, body);
             await this.commentRepository.insertCommentLike(newCommentLike);
         } else {
             if (existCommentLike.likeStatus !== body) {

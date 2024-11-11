@@ -18,8 +18,6 @@ import { AdaptersModule } from './infrastructure/adapters/adapters.module';
 import { CoreModule } from './infrastructure/core.module';
 import { TestingsModule } from './features/testing/testings.module';
 import { BloggersPlatformModule } from './features/bloggers_platform/bloggersPlatform.module';
-import { User } from './features/users/domain/user.typeorm.entity';
-import { Session } from './features/sessions/domain/session.typeorm.entity';
 
 const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule, BloggersPlatformModule];// импортировать! 
 
@@ -50,7 +48,6 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
           }
         }
       }),
-    TypeOrmModule.forFeature([User, Session]),
     // MongooseModule.forRootAsync({
     //   useFactory: (configService: ConfigService<ConfigurationType, true>) => {
     //     const environmentSettings = configService.get('environmentSettings', {infer: true,});

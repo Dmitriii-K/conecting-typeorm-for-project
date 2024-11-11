@@ -1,7 +1,7 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { BlogPostInputModel } from "../../api/models/input.model";
-import { PostRepository } from "src/features/bloggers_platform/posts/repository/post.sql.repository";
-import { Post } from "src/features/bloggers_platform/posts/domain/post.sql.entity";
+import { PostRepository } from "src/features/bloggers_platform/posts/repository/post.typeorm.repository";
+import { Post } from "src/features/bloggers_platform/posts/domain/post.typeorm.entity";
 
 export class CreatePostForBlogCommand {
     constructor(

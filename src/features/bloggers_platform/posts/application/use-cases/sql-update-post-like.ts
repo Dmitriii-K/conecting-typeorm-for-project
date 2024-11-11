@@ -1,5 +1,5 @@
-import { PostRepository } from "../../repository/post.sql.repository";
-import { Post } from "../../domain/post.sql.entity";
+import { PostRepository } from "../../repository/post.typeorm.repository";
+import { Post } from "../../domain/post.typeorm.entity";
 import { likeStatus } from "src/features/bloggers_platform/likes/api/models/input.model";
 import { CommandHandler } from "@nestjs/cqrs";
 import { PostLike } from "src/features/bloggers_platform/likes/domain/PostLikes.sql.entity";

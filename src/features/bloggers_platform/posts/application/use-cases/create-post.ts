@@ -1,9 +1,9 @@
-import { PostRepository } from "../../repository/post.sql.repository";
-import { Post } from "../../domain/post.sql.entity";
+import { PostRepository } from "../../repository/post.typeorm.repository";
+import { Post } from "../../domain/post.typeorm.entity";
 import { CommandHandler } from "@nestjs/cqrs";
 import { PostInputModel } from "../../api/models/input.model";
 import { BadRequestException } from "@nestjs/common";
-import { BlogRepository } from "src/features/bloggers_platform/blogs/repository/blog.sql.repository";
+import { BlogRepository } from "src/features/bloggers_platform/blogs/repository/blog.typeorm.repository";
 
 export class CreatePostCommand {
     constructor(

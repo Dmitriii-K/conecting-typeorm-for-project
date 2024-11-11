@@ -1,13 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { CommentViewModel } from "../api/models/output.model";
-import { CommentRepository } from "./comment.sql.repository";
 
 @Injectable()
 export class CommentQueryRepository {
     constructor(
-        private dataSource: DataSource,
-        protected commentRepository: CommentRepository
+        private dataSource: DataSource
     ) {}
 
     async findCommentById(commentId: string, userId: string | null): Promise<CommentViewModel | null> {

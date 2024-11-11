@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import { Post } from "../domain/post.sql.entity";
+import { Post } from "../domain/post.typeorm.entity";
 import { BlogPostInputModel } from "../../blogs/api/models/input.model";
 import { PostLike } from "../../likes/domain/PostLikes.sql.entity";
 

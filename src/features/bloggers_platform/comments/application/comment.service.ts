@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { CommentRepository } from "../repository/comment.sql.repository";
+import { CommentRepository } from "../repository/comment.typeorm.repository";
 
 @Injectable()
-export class CommentService /*implements ICommentService*/{
+export class CommentService{
     constructor(private commentRepository: CommentRepository) {}
 
     async findComment(id: string) {
