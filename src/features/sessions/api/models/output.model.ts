@@ -1,29 +1,17 @@
-// import { CommentatorInfo } from "src/base/types/comment.types";
-// import { likeStatus } from "src/features/bloggers_platform/likes/api/models/input.model";
-
-// export class CommentViewModel {
-//     id:string;
-//     content:	string;
-//     createdAt:	string;
-//     commentatorInfo: CommentatorInfo;
-//     likesInfo: {
-//         likesCount: number,
-//         dislikesCount: number,
-//         myStatus: likeStatus
-//     }
-// }
-
-// export class PaginatorCommentViewModelDB {
-//     pagesCount:	number;
-//     page:	number;
-//     pageSize:	number;
-//     totalCount:	number;
-//     items: CommentViewModel[];
-// }
+import { Session } from "../../domain/session.typeorm.entity";
 
 export class DeviceViewModel {
     ip: string;
     title: string;
     lastActiveDate: string;
     deviceId: string
+}
+
+export function mapSession(session: Session): DeviceViewModel {
+    return {
+        ip: session.ip,
+        title: session.device_name,
+        lastActiveDate: session.iat,
+        deviceId: session.device_id
+    };
 }

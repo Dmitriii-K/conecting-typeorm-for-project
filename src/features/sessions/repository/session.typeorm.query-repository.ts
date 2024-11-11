@@ -1,34 +1,29 @@
-// import { Injectable } from "@nestjs/common";
-// import { DeviceViewModel } from "../api/models/output.model";
-// import { InjectDataSource } from "@nestjs/typeorm";
-// import { DataSource } from "typeorm";
-// import { Session } from "../domain/session.sql.entity";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Session } from '../../sessions/domain/session.typeorm.entity';
+import { DeviceViewModel, mapSession } from '../api/models/output.model';
 
-// @Injectable()
-// export class SessionsQueryRepository{
-//     constructor(@InjectDataSource() protected dataSource: DataSource) {}
+@Injectable()
+export class SessionsQueryRepository {
+    constructor(
+        @InjectRepository(Session) protected sessionRepository: Repository<Session>,
+    ) {}
 
-//     async findSessions(userId: string): Promise<DeviceViewModel[] | null> {
-//         if (!userId) {
-//             throw new Error("User ID is required");
-//         }
-//         const currentTime = new Date().toISOString();
+    async findSessions(userId: string): Promise<DeviceViewModel[] | null> {
+        if (!userId) {
+            return null; // Возвращаем null, если userId не предоставлен
+        }
 
-//         const query = `
-//             SELECT * FROM "Sessions"
-//             WHERE user_id = $1 
-//             --AND exp >= $2
-//         `;
-//         const sessions = await this.dataSource.query(query, [userId/*, currentTime*/]);
-//         return sessions.map(this.mapSession);
-//     }
+        const currentTime = new Date().toISOString();
 
-//     mapSession(session: Session): DeviceViewModel {
-//         return {
-//             ip: session.ip,
-//             title: session.device_name,
-//             lastActiveDate: session.iat,
-//             deviceId: session.device_id
-//         };
-//     }
-// }
+        const sessions = await this.sessionRepository.find({
+            where: {
+                user_id: userId,
+                // exp: MoreThanOrEqual(currentTime), // Если нужно фильтровать по времени
+            },
+        });
+
+        return sessions.map(mapSession);
+    }
+}

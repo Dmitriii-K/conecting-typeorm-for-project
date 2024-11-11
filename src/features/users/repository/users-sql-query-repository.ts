@@ -1,10 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { InjectDataSource, InjectRepository } from "@nestjs/typeorm";
-import { DataSource, Repository  } from "typeorm";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource  } from "typeorm";
 import { TypeUserPagination } from "../api/models/input.models";
-import { PaginatorUserViewModel, UserViewModel } from "../api/models/output.models";
+import { mapUser, PaginatorUserViewModel, UserViewModel } from "../api/models/output.models";
 import { userPagination } from "src/base/models/user.models";
-import { User } from "../domain/user.sql.entity";
 
 @Injectable()
 export class UserQueryRepository {
@@ -47,7 +46,7 @@ export class UserQueryRepository {
             page: pageNumber,
             pageSize: pageSize,
             totalCount,
-            items: users.map(this.mapUser),
+            items: users.map(mapUser),
         };
         return newUser;
     }
@@ -63,15 +62,6 @@ export class UserQueryRepository {
         if (user.length === 0) {
             return null;
         }
-        return this.mapUser(user[0]);
-    }
-
-    mapUser(user: User): UserViewModel {
-        return {
-            id: user.id,
-            login: user.login,
-            email: user.email,
-            createdAt: user.createdAt,
-        };
+        return mapUser(user[0]);
     }
 }

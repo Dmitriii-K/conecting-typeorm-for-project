@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { Blog } from '../domain/blog.sql.entity';
 import { TypeBlogHalper, TypePostForBlogHalper } from 'src/base/types/blog.types';
-import { BlogViewModel, PaginatorBlogViewModel } from '../api/models/output.model';
-import { PaginatorPostViewModel, PostViewModel } from '../../posts/api/models/output.model';
+import { blogMap, BlogViewModel, PaginatorBlogViewModel } from '../api/models/output.model';
+import { mapPost, PaginatorPostViewModel, PostViewModel } from '../../posts/api/models/output.model';
 import { blogPagination } from 'src/base/models/blog.model';
 
 @Injectable()
@@ -31,7 +30,7 @@ export class BlogQueryRepository {
             page: queryParams.pageNumber,
             pageSize: queryParams.pageSize,
             totalCount: parseInt(totalCount[0].count),
-            items: items.map(this.blogMap),
+            items: items.map(blogMap),
         };
 
         return blogs;
@@ -45,7 +44,7 @@ export class BlogQueryRepository {
             return null;
         }
 
-        return this.blogMap(blog[0]);
+        return blogMap(blog[0]);
     }
 
     async getPostForBlogById(postId: string): Promise<PostViewModel | null> {
@@ -85,7 +84,7 @@ export class BlogQueryRepository {
         `;
         const newestLikes = await this.dataSource.query(newestLikesQuery, [postId]);
     
-        return this.mapPost(post[0], newestLikes);
+        return mapPost(post[0], newestLikes);
     }
 
     async getPostsForBlog(helper: TypePostForBlogHalper, id: string, userId: string | null): Promise<PaginatorPostViewModel> {
@@ -127,7 +126,7 @@ export class BlogQueryRepository {
             `;
             const newestLikes = await this.dataSource.query(newestLikesQuery, [post.id]);
     
-            return this.mapPost(post, newestLikes);
+            return mapPost(post, newestLikes);
         }));
     
         return {
@@ -136,39 +135,6 @@ export class BlogQueryRepository {
             pageSize: queryParams.pageSize,
             totalCount: parseInt(totalCount[0].count),
             items,
-        };
-    }
-
-    mapPost(post: any, newestLikes): PostViewModel {
-        return {
-            id: post.id,
-            title: post.title,
-            shortDescription: post.shortDescription,
-            content: post.content,
-            blogId: post.blogId,
-            blogName: post.blogName,
-            createdAt: post.createdAt,
-            extendedLikesInfo: {
-                likesCount: parseInt(post.likesCount, 10) || 0,
-                dislikesCount: parseInt(post.dislikesCount, 10) || 0,
-                myStatus: post.userLikeStatus,
-                newestLikes: newestLikes.map(like => ({
-                    addedAt: like.addedAt,
-                    userId: like.userId,
-                    login: like.login
-                }))
-            },
-        };
-    }
-
-    blogMap(blog: Blog): BlogViewModel {
-        return {
-            id: blog.id,
-            name: blog.name,
-            description: blog.description,
-            websiteUrl: blog.websiteUrl,
-            createdAt: blog.createdAt,
-            isMembership: blog.isMembership,
         };
     }
 }

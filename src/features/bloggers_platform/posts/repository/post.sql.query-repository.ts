@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { TypePostHalper } from "src/base/types/post.types";
 import { DataSource } from "typeorm";
-import { PaginatorPostViewModel, PostViewModel } from "../api/models/output.model";
+import { mapPost, PaginatorPostViewModel, PostViewModel } from "../api/models/output.model";
 import { postPagination } from "src/base/models/post.model";
-import { CommentViewModel, PaginatorCommentViewModelDB } from "../../comments/api/models/output.model";
+import { mapComment, PaginatorCommentViewModelDB } from "../../comments/api/models/output.model";
 import { commentsPagination } from "src/base/models/comment.model";
 
 @Injectable()
@@ -46,7 +46,7 @@ export class PostQueryRepository {
                 LIMIT 3
             `;
             const newestLikes = await this.dataSource.query(newestLikesQuery, [post.id]);
-            return this.mapPost(post, newestLikes);
+            return mapPost(post, newestLikes);
         }));
     
         return {
@@ -94,7 +94,7 @@ export class PostQueryRepository {
         LIMIT 3
     `;
     const newestLikes = await this.dataSource.query(newestLikesQuery, [postId]);
-        return this.mapPost(post[0], newestLikes);
+        return mapPost(post[0], newestLikes);
     }
 
     async findCommentByPost(helper: TypePostHalper, postId: string, userId: string | null): Promise<PaginatorCommentViewModelDB> {
@@ -125,7 +125,7 @@ export class PostQueryRepository {
         const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Comments" WHERE "postId" = $1`, [postId]);
     
         const items = await Promise.all(comments.map(async comment => {
-            return this.mapComment(comment);
+            return mapComment(comment);
         }));
     
         return {
@@ -134,46 +134,6 @@ export class PostQueryRepository {
             pageSize: queryParams.pageSize,
             totalCount: parseInt(totalCount[0].count),
             items,
-        };
-    }
-
-    mapPost(post: any, newestLikes): PostViewModel {
-        return {
-            id: post.id,
-            title: post.title,
-            shortDescription: post.shortDescription,
-            content: post.content,
-            blogId: post.blogId,
-            blogName: post.blogName,
-            createdAt: post.createdAt,
-            extendedLikesInfo: {
-                likesCount: parseInt(post.likesCount, 10) || 0,
-                dislikesCount: parseInt(post.dislikesCount, 10) || 0,
-                myStatus: post.userLikeStatus,
-                newestLikes: newestLikes.map(like => ({
-                    addedAt: like.addedAt,
-                    userId: like.userId,
-                    login: like.login
-                }))
-            },
-        };
-    }
-
-    mapComment(comment: any): CommentViewModel {
-        // json_build_object() as comentatorInfo
-    return {
-        id: comment.id,
-        content: comment.content,
-        createdAt: comment.createdAt,
-        commentatorInfo: {
-            userId: comment.userId,
-            userLogin: comment.userLogin
-        },
-        likesInfo: {
-            likesCount: parseInt(comment.likesCount, 10) || 0,
-            dislikesCount: parseInt(comment.dislikesCount, 10) || 0,
-            myStatus: comment.userLikeStatus 
-            }
         };
     }
 }

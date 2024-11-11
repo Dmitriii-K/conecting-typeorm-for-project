@@ -1,126 +1,142 @@
-// import { Injectable } from '@nestjs/common';
-// import { DataSource } from 'typeorm';
-// import { Blog } from '../domain/blog.sql.entity';
-// import { TypeBlogHalper, TypePostForBlogHalper } from 'src/base/types/blog.types';
-// import { BlogViewModel, PaginatorBlogViewModel } from '../api/models/output.model';
-// import { PaginatorPostViewModel, PostViewModel } from '../../posts/api/models/output.model';
-// import { blogPagination } from 'src/base/models/blog.model';
-// import { likeStatus } from '../../likes/api/models/input.model';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Blog } from '../../blogs/domain/blog.typeorm.entity';
+import { Post } from '../../posts/domain/post.typeorm.entity';
+import { PostLike } from '../../likes/domain/PostLikes.typeorm.entity';
+import { TypeBlogHalper, TypePostForBlogHalper } from 'src/base/types/blog.types';
+import { blogMap, BlogViewModel, PaginatorBlogViewModel } from '../api/models/output.model';
+import { blogPagination } from 'src/base/models/blog.model';
+import { mapPost, PaginatorPostViewModel, PostViewModel } from '../../posts/api/models/output.model';
 
-// @Injectable()
-// export class BlogQueryRepository {
-//     constructor(private dataSource: DataSource) {}
+@Injectable()
+export class BlogQueryRepository {
+    constructor(
+        @InjectRepository(Blog) private blogRepository: Repository<Blog>,
+        @InjectRepository(Post) private postRepository: Repository<Post>,
+        @InjectRepository(PostLike) private postsLikesRepository: Repository<PostLike>
+    ) {}
 
-//     async getAllBlogs(helper: TypeBlogHalper): Promise<PaginatorBlogViewModel> {
-//         const queryParams = blogPagination(helper);
-//         const search = helper.searchNameTerm
-//             ? `WHERE "name" ILIKE '%${helper.searchNameTerm}%'`
-//             : '';
+    async getAllBlogs(helper: TypeBlogHalper): Promise<PaginatorBlogViewModel> {
+        const queryParams = blogPagination(helper);
 
-//         const query = `
-//             SELECT * FROM "Blogs"
-//             ${search}
-//             ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
-//             LIMIT ${queryParams.pageSize} OFFSET ${(queryParams.pageNumber - 1) * queryParams.pageSize}
-//         `;
+        const queryBuilder = this.blogRepository.createQueryBuilder('blog');
 
-//         const items = await this.dataSource.query(query);
-//         const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Blogs" ${search}`);
+        if (helper.searchNameTerm) {
+            queryBuilder.andWhere('blog.name ILIKE :searchNameTerm', { searchNameTerm: `%${helper.searchNameTerm}%` });
+        }
 
-//         const blogs = {
-//             pagesCount: Math.ceil(totalCount[0].count / queryParams.pageSize),
-//             page: queryParams.pageNumber,
-//             pageSize: queryParams.pageSize,
-//             totalCount: parseInt(totalCount[0].count),
-//             items: items.map(this.blogMap),
-//         };
+        queryBuilder
+            .orderBy(`blog.${queryParams.sortBy}`, queryParams.sortDirection.toUpperCase() as 'ASC' | 'DESC')
+            .skip((queryParams.pageNumber - 1) * queryParams.pageSize)
+            .take(queryParams.pageSize);
 
-//         return blogs;
-//     }
+        const [blogs, totalCount] = await queryBuilder.getManyAndCount();
 
-//     async getBlogById(blogId: string): Promise<BlogViewModel | null> {
-//         const query = `SELECT * FROM "Blogs" WHERE id = $1`;
-//         const blog = await this.dataSource.query(query, [blogId]);
+        return {
+            pagesCount: Math.ceil(totalCount / queryParams.pageSize),
+            page: queryParams.pageNumber,
+            pageSize: queryParams.pageSize,
+            totalCount,
+            items: blogs.map(blogMap),
+        };
+    }
 
-//         if (!blog.length) {
-//             return null;
-//         }
+    async getBlogById(blogId: string): Promise<BlogViewModel | null> {
+        const blog = await this.blogRepository.findOne({ where: { id: blogId } });
 
-//         return this.blogMap(blog[0]);
-//     }
+        if (!blog) {
+            return null;
+        }
 
-//     async getPostForBlogById(postId: string): Promise<PostViewModel | null> {
-//         const query = `
-//             SELECT p.*, b."name" AS "blogName"
-//             FROM "Posts" AS p
-//             LEFT JOIN "Blogs" AS b 
-//                 ON p."blogId" = b.id
-//             WHERE p.id = $1
-//         `;
-//         const post = await this.dataSource.query(query, [postId]);
-    
-//         if (!post.length) {
-//             return null;
-//         }
-//         return this.mapPost(post[0]);
-//     }
+        return blogMap(blog);
+    }
 
-//     async getPostsForBlog(helper: TypePostForBlogHalper, id: string, userId: string | null): Promise<PaginatorPostViewModel> {
-//         const queryParams = blogPagination(helper);
-    
-//         const query = `
-//         SELECT p.*, b."name" AS "blogName"
-//         FROM "Posts" AS p
-//         LEFT JOIN "Blogs" AS b 
-//             ON p."blogId" = b.id
-//         WHERE p."blogId" = $1
-//         ORDER BY "${queryParams.sortBy}" ${queryParams.sortDirection}
-//         LIMIT $2 OFFSET $3
-//         `;
-    
-//         const posts = await this.dataSource.query(query, [id, queryParams.pageSize, (queryParams.pageNumber - 1) * queryParams.pageSize]);
-//         const totalCount = await this.dataSource.query(`SELECT COUNT(*) FROM "Posts" WHERE "blogId" = $1`, [id]);
-    
-//         const items = await Promise.all(posts.map(async post => {
-    
-//             return this.mapPost(post);
-//         }));
-    
-//         return {
-//             pagesCount: Math.ceil(totalCount[0].count / queryParams.pageSize),
-//             page: queryParams.pageNumber,
-//             pageSize: queryParams.pageSize,
-//             totalCount: parseInt(totalCount[0].count),
-//             items,
-//         };
-//     }
+    async getPostForBlogById(postId: string): Promise<PostViewModel | null> {
+        const post = await this.postRepository
+            .createQueryBuilder('post')
+            .leftJoinAndSelect('post.blog', 'blog')
+            .leftJoin('post.likes', 'likes')
+            .leftJoin('post.likes', 'userLike', 'userLike.userId = :userId', { userId: 'currentUserId' })
+            .select([
+                'post.id',
+                'post.title',
+                'post.shortDescription',
+                'post.content',
+                'post.blogId',
+                'blog.name',
+                'post.createdAt',
+                'COUNT(CASE WHEN likes.likeStatus = \'Like\' THEN 1 END) AS likesCount',
+                'COUNT(CASE WHEN likes.likeStatus = \'Dislike\' THEN 1 END) AS dislikesCount',
+                'COALESCE(userLike.likeStatus, \'None\') AS userLikeStatus',
+            ])
+            .where('post.id = :postId', { postId })
+            .groupBy('post.id, blog.name, userLike.likeStatus')
+            .getRawOne();
 
-//     mapPost(post: any): PostViewModel {
-//         return {
-//             id: post.id,
-//             title: post.title,
-//             shortDescription: post.shortDescription,
-//             content: post.content,
-//             blogId: post.blogId,
-//             blogName: post.blogName,
-//             createdAt: post.createdAt,
-//             extendedLikesInfo: {
-//                 likesCount: 0,
-//                 dislikesCount: 0,
-//                 myStatus: likeStatus.None,
-//                 newestLikes: []
-//             },
-//         };
-//     }
+        if (!post) {
+            return null;
+        }
 
-//     blogMap(blog: Blog): BlogViewModel {
-//         return {
-//             id: blog.id,
-//             name: blog.name,
-//             description: blog.description,
-//             websiteUrl: blog.websiteUrl,
-//             createdAt: blog.createdAt,
-//             isMembership: blog.isMembership,
-//         };
-//     }
-// }
+        const newestLikes = await this.postsLikesRepository
+            .createQueryBuilder('likes')
+            .leftJoinAndSelect('likes.user', 'user')
+            .where('likes.postId = :postId', { postId })
+            .andWhere('likes.likeStatus = \'Like\'')
+            .orderBy('likes.createdAt', 'DESC')
+            .limit(3)
+            .getMany();
+
+        return mapPost(post, newestLikes);
+    }
+
+    async getPostsForBlog(helper: TypePostForBlogHalper, id: string, userId: string | null): Promise<PaginatorPostViewModel> {
+        const queryParams = blogPagination(helper);
+
+        const queryBuilder = this.postRepository
+            .createQueryBuilder('post')
+            .leftJoinAndSelect('post.blog', 'blog')
+            .leftJoin('post.likes', 'likes')
+            .leftJoin('post.likes', 'userLike', 'userLike.userId = :userId', { userId })
+            .select([
+                'post.id',
+                'post.title',
+                'post.shortDescription',
+                'post.content',
+                'post.blogId',
+                'blog.name',
+                'post.createdAt',
+                'COUNT(CASE WHEN likes.likeStatus = \'Like\' THEN 1 END) AS likesCount',
+                'COUNT(CASE WHEN likes.likeStatus = \'Dislike\' THEN 1 END) AS dislikesCount',
+                'COALESCE(userLike.likeStatus, \'None\') AS userLikeStatus',
+            ])
+            .where('post.blogId = :id', { id })
+            .groupBy('post.id, blog.name, userLike.likeStatus')
+            .orderBy(`post.${queryParams.sortBy}`, queryParams.sortDirection.toUpperCase() as 'ASC' | 'DESC')
+            .skip((queryParams.pageNumber - 1) * queryParams.pageSize)
+            .take(queryParams.pageSize);
+
+        const [posts, totalCount] = await queryBuilder.getManyAndCount();
+
+        const items = await Promise.all(posts.map(async post => {
+            const newestLikes = await this.postsLikesRepository
+                .createQueryBuilder('likes')
+                .leftJoinAndSelect('likes.user', 'user')
+                .where('likes.postId = :postId', { postId: post.id })
+                .andWhere('likes.likeStatus = \'Like\'')
+                .orderBy('likes.createdAt', 'DESC')
+                .limit(3)
+                .getMany();
+
+            return mapPost(post, newestLikes);
+        }));
+
+        return {
+            pagesCount: Math.ceil(totalCount / queryParams.pageSize),
+            page: queryParams.pageNumber,
+            pageSize: queryParams.pageSize,
+            totalCount,
+            items,
+        };
+    }
+}
