@@ -20,3 +20,20 @@ export class PaginatorCommentViewModelDB {
     totalCount:	number;
     items: CommentViewModel[];
 }
+
+export function mapComment(comment: any): CommentViewModel {
+    return {
+        id: comment.id,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        commentatorInfo: {
+            userId: comment.user.id,
+            userLogin: comment.user.login,
+        },
+        likesInfo: {
+            likesCount: parseInt(comment.likesCount, 10) || 0,
+            dislikesCount: parseInt(comment.dislikesCount, 10) || 0,
+            myStatus: comment.userLikeStatus,
+        },
+    };
+}

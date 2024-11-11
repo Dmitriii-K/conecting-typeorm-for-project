@@ -23,3 +23,25 @@ export class PaginatorPostViewModel {
     totalCount: number;
     items: PostViewModel[];
 }
+
+export function mapPost(post: any, newestLikes): PostViewModel {
+    return {
+        id: post.id,
+        title: post.title,
+        shortDescription: post.shortDescription,
+        content: post.content,
+        blogId: post.blogId,
+        blogName: post.blogName,
+        createdAt: post.createdAt,
+        extendedLikesInfo: {
+            likesCount: parseInt(post.likesCount, 10) || 0,
+            dislikesCount: parseInt(post.dislikesCount, 10) || 0,
+            myStatus: post.userLikeStatus,
+            newestLikes: newestLikes.map(like => ({
+                addedAt: like.createdAt,
+                userId: like.userId,
+                login: like.user.login,
+            })),
+        },
+    };
+}

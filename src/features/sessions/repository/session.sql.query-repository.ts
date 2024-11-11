@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { DeviceViewModel } from "../api/models/output.model";
+import { DeviceViewModel, mapSession } from "../api/models/output.model";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { Session } from "../domain/session.sql.entity";
 
 @Injectable()
 export class SessionsQueryRepository{
@@ -20,15 +19,6 @@ export class SessionsQueryRepository{
             --AND exp >= $2
         `;
         const sessions = await this.dataSource.query(query, [userId/*, currentTime*/]);
-        return sessions.map(this.mapSession);
-    }
-
-    mapSession(session: Session): DeviceViewModel {
-        return {
-            ip: session.ip,
-            title: session.device_name,
-            lastActiveDate: session.iat,
-            deviceId: session.device_id
-        };
+        return sessions.map(mapSession);
     }
 }

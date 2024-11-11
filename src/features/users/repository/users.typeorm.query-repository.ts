@@ -1,77 +1,56 @@
-// import { Injectable } from "@nestjs/common";
-// import { InjectDataSource, InjectRepository } from "@nestjs/typeorm";
-// import { DataSource, Repository  } from "typeorm";
-// import { TypeUserPagination } from "../api/models/input.models";
-// import { PaginatorUserViewModel, UserViewModel } from "../api/models/output.models";
-// import { userPagination } from "src/base/models/user.models";
-// import { User } from "../domain/user.sql.entity";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../domain/user.typeorm.entity';
+import { TypeUserPagination } from '../api/models/input.models';
+import { mapUser, PaginatorUserViewModel, UserViewModel } from '../api/models/output.models';
+import { userPagination } from 'src/base/models/user.models';
 
-// @Injectable()
-// export class UserQueryRepository {
-//     constructor(
-//         @InjectDataSource() protected dataSource: DataSource,
-//         // @InjectRepository(User) protected userRepository: Repository<User>
-// ) {}
+@Injectable()
+export class UserQueryRepository {
+    constructor(
+        @InjectRepository(User) protected userRepository: Repository<User>,
+    ) {}
 
-//     async getAllUsers(query: TypeUserPagination): Promise<PaginatorUserViewModel> {
-//         const { pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm } = userPagination(query);
+    async getAllUsers(query: TypeUserPagination): Promise<PaginatorUserViewModel> {
+        const { pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm } = userPagination(query);
+
+        const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+        // Добавляем фильтры
+        if (searchEmailTerm) {
+            queryBuilder.andWhere('user.email ILIKE :email', { email: `%${searchEmailTerm}%` });
+        }
+        if (searchLoginTerm) {
+            queryBuilder.andWhere('user.login ILIKE :login', { login: `%${searchLoginTerm}%` });
+        }
+
+        // Сортировка
+        queryBuilder.orderBy(`user.${sortBy}`, sortDirection.toUpperCase() as 'ASC' | 'DESC');
+
+        // Пагинация
+        queryBuilder.skip((pageNumber - 1) * pageSize).take(pageSize);
+
+        // Получаем пользователей
+        const [users, totalCount] = await queryBuilder.getManyAndCount();
+
+        // Формируем результат
+        const allUsers: PaginatorUserViewModel = {
+            pagesCount: Math.ceil(totalCount / pageSize),
+            page: pageNumber,
+            pageSize: pageSize,
+            totalCount,
+            items: users.map(mapUser),
+        };
+        return allUsers;
+    }
+
+    async getUserById(userId: string): Promise<UserViewModel | null> {
+        const user = await this.userRepository.findOne({ where: { id: userId } });
     
-//         // Формируем фильтры
-//         const emailFilter = searchEmailTerm ? `"email" ILIKE '%${searchEmailTerm}%'` : null;
-//         const loginFilter = searchLoginTerm ? `"login" ILIKE '%${searchLoginTerm}%'` : null;
-//         const filters = [emailFilter, loginFilter]
-//             .filter(Boolean)
-//             .join(" OR ");
-    
-//         // Формируем SQL запрос для получения пользователей
-//         const queryUsers = `
-//             SELECT * FROM "Users"
-//             ${filters ? `WHERE ${filters}`: ""}
-//             ORDER BY "${sortBy}" ${sortDirection.toUpperCase()}
-//             LIMIT ${pageSize} OFFSET ${(pageNumber - 1) * pageSize}
-//         `;
-//         // console.log(queryUsers);//--------------
-//         const users = await this.dataSource.query(queryUsers);
-//         // console.log(users);//--------------
-//         // Получаем общее количество пользователей
-//         const queryTotalCount = `
-//             SELECT COUNT(*) FROM "Users"
-//             ${filters ? `WHERE ${filters}`: ""}
-//         `;
-//         const totalCountResult = await this.dataSource.query(queryTotalCount);
-//         const totalCount = parseInt(totalCountResult[0].count, 10);
-    
-//         // Формируем результат
-//         const newUser: PaginatorUserViewModel = {
-//             pagesCount: Math.ceil(totalCount / pageSize),
-//             page: pageNumber,
-//             pageSize: pageSize,
-//             totalCount,
-//             items: users.map(this.mapUser),
-//         };
-//         return newUser;
-//     }
-
-//     async getUserById(userId: string): Promise<UserViewModel | null> {
-//         const query = `
-//             SELECT * FROM "Users"
-//             WHERE id = $1`;
-//         const user = await this.dataSource.query(query, [userId]);
-//         //const user1 = await this.dataSource.getRepository(User).findOne({where: {id: Number(userId)}})
-//         //const user1 = await this.userRepository.findOne({where: {id: Number(userId)}})
-
-//         if (user.length === 0) {
-//             return null;
-//         }
-//         return this.mapUser(user[0]);
-//     }
-
-//     mapUser(user: User): UserViewModel {
-//         return {
-//             id: user.id,
-//             login: user.login,
-//             email: user.email,
-//             createdAt: user.createdAt,
-//         };
-//     }
-// }
+        if (!user) {
+            return null;
+        }
+        return mapUser(user);
+    }
+}

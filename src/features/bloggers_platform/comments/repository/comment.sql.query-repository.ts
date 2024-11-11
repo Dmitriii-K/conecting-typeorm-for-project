@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import { CommentViewModel } from "../api/models/output.model";
+import { CommentViewModel, mapComment } from "../api/models/output.model";
 
 @Injectable()
 export class CommentQueryRepository {
@@ -37,24 +37,6 @@ export class CommentQueryRepository {
         }
         // console.log('comment2', comment);//-------------------
     
-        return this.mapComment(comment[0]);
-    }
-
-    mapComment(comment: any): CommentViewModel {
-        // json_build_object() as comentatorInfo
-    return {
-        id: comment.id,
-        content: comment.content,
-        createdAt: comment.createdAt,
-        commentatorInfo: {
-            userId: comment.userId,
-            userLogin: comment.userLogin
-        },
-        likesInfo: {
-            likesCount: parseInt(comment.likesCount, 10) || 0,
-            dislikesCount: parseInt(comment.dislikesCount, 10) || 0,
-            myStatus: comment.userLikeStatus 
-            }
-        };
+        return mapComment(comment[0]);
     }
 }

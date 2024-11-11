@@ -1,62 +1,40 @@
-// import { Injectable } from "@nestjs/common";
-// import { DataSource } from "typeorm";
-// import { CommentViewModel } from "../api/models/output.model";
-// import { CommentRepository } from "./comment.sql.repository";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Comment } from '../../comments/domain/comment.typeorm.entity';
+import { CommentViewModel, mapComment } from '../api/models/output.model';
 
-// @Injectable()
-// export class CommentQueryRepository {
-//     constructor(
-//         private dataSource: DataSource,
-//         protected commentRepository: CommentRepository
-//     ) {}
+@Injectable()
+export class CommentQueryRepository {
+    constructor(
+        @InjectRepository(Comment) private commentRepository: Repository<Comment>
+    ) {}
 
-//     async findCommentById(commentId: string, userId: string | null): Promise<CommentViewModel | null> {
-//         const query = `
-//             SELECT 
-//             c.id, 
-//             c.content, 
-//             c."createdAt", 
-//             u.id AS "userId", 
-//             u.login AS "userLogin",
-//             COUNT(CASE WHEN cl."likeStatus" = 'Like' THEN 1 END) AS "likesCount",
-//             COUNT(CASE WHEN cl."likeStatus" = 'Dislike' THEN 1 END) AS "dislikesCount",
-//             COALESCE(cl2."likeStatus", 'None') AS "userLikeStatus"
-//         FROM "Comments" c
-//         LEFT JOIN "CommentsLikes" cl 
-//             ON c.id = cl."commentsId"
-//         LEFT JOIN "Users" u 
-//             ON c."userId" = u.id
-//         LEFT JOIN "CommentsLikes" cl2 
-//             ON c.id = cl2."commentsId" AND cl2."userId" = $2
-//         WHERE c.id = $1
-//         GROUP BY c.id, c.content, c."createdAt", u.id, u.login, cl2."likeStatus";
-//     `;
-//         const comment = await this.dataSource.query(query, [commentId, userId]);
-//         // console.log('comment1', comment);//-------------------
+    async findCommentById(commentId: string, userId: string | null): Promise<CommentViewModel | null> {
+        const queryBuilder = this.commentRepository
+            .createQueryBuilder('comment')
+            .leftJoinAndSelect('comment.user', 'user')
+            .leftJoin('comment.likes', 'likes')
+            .leftJoin('comment.likes', 'userLike', 'userLike.userId = :userId', { userId })
+            .select([
+                'comment.id',
+                'comment.content',
+                'comment.createdAt',
+                'user.id',
+                'user.login',
+                'COUNT(CASE WHEN likes.likeStatus = \'Like\' THEN 1 END) AS likesCount',
+                'COUNT(CASE WHEN likes.likeStatus = \'Dislike\' THEN 1 END) AS dislikesCount',
+                'COALESCE(userLike.likeStatus, \'None\') AS userLikeStatus',
+            ])
+            .where('comment.id = :commentId', { commentId })
+            .groupBy('comment.id, comment.content, comment.createdAt, user.id, user.login, userLike.likeStatus');
 
-//         if (!comment.length) {
-//             return null;
-//         }
-//         // console.log('comment2', comment);//-------------------
-    
-//         return this.mapComment(comment[0]);
-//     }
+        const comment = await queryBuilder.getRawOne();
 
-//     mapComment(comment: any): CommentViewModel {
-//         // json_build_object() as comentatorInfo
-//     return {
-//         id: comment.id,
-//         content: comment.content,
-//         createdAt: comment.createdAt,
-//         commentatorInfo: {
-//             userId: comment.userId,
-//             userLogin: comment.userLogin
-//         },
-//         likesInfo: {
-//             likesCount: parseInt(comment.likesCount, 10) || 0,
-//             dislikesCount: parseInt(comment.dislikesCount, 10) || 0,
-//             myStatus: comment.userLikeStatus 
-//             }
-//         };
-//     }
-// }
+        if (!comment) {
+            return null;
+        }
+
+        return mapComment(comment);
+    }
+}
