@@ -12,22 +12,22 @@ export class CommentQueryRepository {
 
     async findCommentById(commentId: string, userId: string | null): Promise<CommentViewModel | null> {
         const queryBuilder = this.commentRepository
-            .createQueryBuilder('comment')
-            .leftJoinAndSelect('comment.user', 'user')
-            .leftJoin('comment.likes', 'likes')
-            .leftJoin('comment.likes', 'userLike', 'userLike.userId = :userId', { userId })
+            .createQueryBuilder('comments')
+            .leftJoinAndSelect('comment.users', 'users')
+            .leftJoin('comments.CommentsLikes', 'CommentsLikes')
+            .leftJoin('comment.CommentsLikes', 'CommentsLikes', 'CommentsLikes.userId = :userId', { userId })
             .select([
-                'comment.id',
-                'comment.content',
-                'comment.createdAt',
-                'user.id',
-                'user.login',
-                'COUNT(CASE WHEN likes.likeStatus = \'Like\' THEN 1 END) AS likesCount',
-                'COUNT(CASE WHEN likes.likeStatus = \'Dislike\' THEN 1 END) AS dislikesCount',
-                'COALESCE(userLike.likeStatus, \'None\') AS userLikeStatus',
+                'comments.id',
+                'comments.content',
+                'comments.createdAt',
+                'users.id AS userId', // Добавляем алиас userId
+                'users.login AS userLogin', // Добавляем алиас userLogin
+                'COUNT(CASE WHEN CommentsLikes.likeStatus = \'Like\' THEN 1 END) AS likesCount',
+                'COUNT(CASE WHEN CommentsLikes.likeStatus = \'Dislike\' THEN 1 END) AS dislikesCount',
+                'COALESCE(CommentsLikes.likeStatus, \'None\') AS userLikeStatus',
             ])
-            .where('comment.id = :commentId', { commentId })
-            .groupBy('comment.id, comment.content, comment.createdAt, user.id, user.login, userLike.likeStatus');
+            .where('comments.id = :commentId', { commentId })
+            .groupBy('comments.id, comments.content, comments.createdAt, users.id, users.login, CommentsLikes.likeStatus');
 
         const comment = await queryBuilder.getRawOne();
 

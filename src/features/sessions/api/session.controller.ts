@@ -2,7 +2,8 @@ import { Controller, Delete, ForbiddenException, Get, HttpCode, NotFoundExceptio
 import { Request } from "express";
 import { CheckTokenAuthGuard } from "src/infrastructure/guards/dubl-guards/check-refresh-token.guard";
 import { SessionsService } from "../application/session.service";
-import { SessionsQueryRepository } from "../repository/session.sql.query-repository";
+// import { SessionsQueryRepository } from "../repository/session.sql.query-repository";
+import { SessionsQueryRepository } from "../repository/session.typeorm.query-repository";
 
 @Controller('security')
 export class SessionController {

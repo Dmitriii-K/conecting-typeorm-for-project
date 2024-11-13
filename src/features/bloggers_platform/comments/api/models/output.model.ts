@@ -27,8 +27,8 @@ export function mapComment(comment: any): CommentViewModel {
         content: comment.content,
         createdAt: comment.createdAt,
         commentatorInfo: {
-            userId: comment.user.id,
-            userLogin: comment.user.login,
+            userId: comment.userId,
+            userLogin: comment.userLogin,
         },
         likesInfo: {
             likesCount: parseInt(comment.likesCount, 10) || 0,

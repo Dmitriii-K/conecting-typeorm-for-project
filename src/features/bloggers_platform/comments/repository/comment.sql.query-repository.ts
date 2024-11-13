@@ -35,7 +35,7 @@ export class CommentQueryRepository {
         if (!comment.length) {
             return null;
         }
-        // console.log('comment2', comment);//-------------------
+        // console.log('comment', comment[0]);//-------------------
     
         return mapComment(comment[0]);
     }
