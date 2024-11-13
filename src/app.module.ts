@@ -18,6 +18,8 @@ import { AdaptersModule } from './infrastructure/adapters/adapters.module';
 import { CoreModule } from './infrastructure/core.module';
 import { TestingsModule } from './features/testing/testings.module';
 import { BloggersPlatformModule } from './features/bloggers_platform/bloggersPlatform.module';
+import { config } from "dotenv";
+config();
 
 const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule, BloggersPlatformModule];// импортировать! 
 
@@ -38,11 +40,14 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
           return {
             type: 'postgres',
             host: 'localhost',
+            // port: process.env.PORT_POSTGRESQL,
             port: 5432,
             username: 'postgres',
-            password: 'dk',// скрыть через useFactory
-            database: 'DBBloggersPlatformOnTypeORM',
+            password: process.env.PASSWORD_BY_DB_SQL,
+            database: process.env.SQL_CONNECTION_URI,
+            // database: 'DBBloggersPlatformOnTypeORM',
             // database: 'newDBforBloggersPlatform',
+            // database: 'TypeORM_Migrations',
             autoLoadEntities: true,
             synchronize: true,
           }

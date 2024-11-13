@@ -38,9 +38,9 @@ export function mapPost(post: any, newestLikes): PostViewModel {
             dislikesCount: parseInt(post.dislikesCount, 10) || 0,
             myStatus: post.userLikeStatus,
             newestLikes: newestLikes.map(like => ({
-                addedAt: like.createdAt,
+                addedAt: like.addedAt,
                 userId: like.userId,
-                login: like.user.login,
+                login: like.login,
             })),
         },
     };

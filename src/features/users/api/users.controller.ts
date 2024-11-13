@@ -2,9 +2,10 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpCode, NotFoundE
 import { TypeUserPagination, UserInputModel } from "./models/input.models";
 import { PaginatorUserViewModel, UserViewModel } from "./models/output.models";
 import { UserService } from "../application/user.service";
-import { UserQueryRepository } from "../repository/users-sql-query-repository";
+// import { UserQueryRepository } from "../repository/users-sql-query-repository";
+import { UserQueryRepository } from "../repository/users.typeorm.query-repository";
 import { BasicAuthGuard } from "src/infrastructure/guards/basic.guard";
-import { BasicGuard } from "src/infrastructure/guards/dubl-guards/basic-auth.guard";
+// import { BasicGuard } from "src/infrastructure/guards/dubl-guards/basic-auth.guard";
 import { CreateUserCommand} from "../application/use-cases/create-user";
 import { CommandBus } from "@nestjs/cqrs";
 // import { UserRepository } from "../repository/users-sql-repository";
