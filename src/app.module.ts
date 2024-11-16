@@ -45,11 +45,11 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
             username: 'postgres',
             password: process.env.PASSWORD_BY_DB_SQL,
             database: process.env.SQL_CONNECTION_URI,
-            // database: 'DBBloggersPlatformOnTypeORM',
             // database: 'newDBforBloggersPlatform',
-            // database: 'TypeORM_Migrations',
             autoLoadEntities: true,
-            synchronize: true,
+            // synchronize: true,
+            synchronize: false,
+            // logging: true
           }
         }
       }),
