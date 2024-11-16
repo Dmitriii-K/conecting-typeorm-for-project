@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, PrimaryColumn
 import { randomUUID } from 'crypto';
 import { add } from "date-fns";
 
-@Entity('Users')
+@Entity('User')
 export class User {
 @PrimaryGeneratedColumn('uuid')
 id: string;
@@ -28,34 +28,34 @@ expirationDate: string;
 @Column({ type: 'boolean', default: false })
 isConfirmed: boolean;
 
-static createUser(login: string, password: string, email: string): User {
-    const user = new User();
-    
-    user.id = randomUUID();
-    user.login = login;
-    user.password = password;
-    user.email = email;
-    user.createdAt = new Date();
-    user.confirmationCode = '';
-    user.expirationDate = '';
-    user.isConfirmed = false;
-    return user;
-}
+    static createUser(login: string, password: string, email: string): User {
+        const user = new User();
+        
+        user.id = randomUUID();
+        user.login = login;
+        user.password = password;
+        user.email = email;
+        user.createdAt = new Date();
+        user.confirmationCode = '';
+        user.expirationDate = '';
+        user.isConfirmed = false;
+        return user;
+    }
 
-static createUserForRegistration(login: string, password: string, email: string): User {
-    const user = new User();
-    
-    user.id = randomUUID();
-    user.login = login;
-    user.password = password;
-    user.email = email;
-    user.createdAt = new Date();
-    user.confirmationCode = randomUUID();
-    // user.expirationDate = add(new Date(), { hours: 1, minutes: 30 }).toISOString();
-    user.expirationDate = new Date().toISOString();
-    user.isConfirmed = false;
-    return user;
-}
+    static createUserForRegistration(login: string, password: string, email: string): User {
+        const user = new User();
+        
+        user.id = randomUUID();
+        user.login = login;
+        user.password = password;
+        user.email = email;
+        user.createdAt = new Date();
+        user.confirmationCode = randomUUID();
+        // user.expirationDate = add(new Date(), { hours: 1, minutes: 30 }).toISOString();
+        user.expirationDate = new Date().toISOString();
+        user.isConfirmed = false;
+        return user;
+    }
 }
 
 // @OneToOne(() => User, (user: User) => user.userConfirm)
@@ -63,6 +63,3 @@ static createUserForRegistration(login: string, password: string, email: string)
 // user: User;
 // @Column({ unique: true })
 // userId: number;
-
-
-
