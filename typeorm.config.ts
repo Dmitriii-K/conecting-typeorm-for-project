@@ -6,8 +6,8 @@ config();
 export default new DataSource({
     type: 'postgres',
     host: 'localhost',
-    // port: process.env.PORT_POSTGRESQL,
-    port: 5432,
+    port: parseInt(<string>process.env.PORT_POSTGRESQL),
+    // port: 5432,
     username: 'postgres',
     password: process.env.PASSWORD_BY_DB_SQL,
     database: process.env.SQL_CONNECTION_URI,
