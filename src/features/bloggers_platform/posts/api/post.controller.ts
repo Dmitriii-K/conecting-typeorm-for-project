@@ -13,8 +13,9 @@ import { UpdatePostLikeCommand } from "../application/use-cases/sql-update-post-
 import { CommandBus } from "@nestjs/cqrs";
 import { CreateCommentByPostCommand } from "../application/use-cases/create-comment-by-post";
 import { CommentQueryRepository } from "../../comments/repository/comment.sql.query-repository";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
-
+@ApiTags('Posts')
 @Controller('posts')
 export class PostController {
     constructor(
@@ -24,6 +25,7 @@ export class PostController {
         private commandBus: CommandBus,
     ) {}
 
+    @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Put(':id/like-status')//-----------
     @HttpCode(204)
@@ -60,6 +62,7 @@ export class PostController {
             return comments;
     }
 
+    @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Post(':id/comments')//--------------
     async createCommentByPostId(

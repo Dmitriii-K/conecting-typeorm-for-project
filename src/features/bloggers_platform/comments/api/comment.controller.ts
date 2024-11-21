@@ -9,8 +9,9 @@ import { JwtAuthGuard } from "src/infrastructure/guards/jwt-auth.guard";
 import { SoftAuthGuard } from "src/infrastructure/guards/dubl-guards/soft-auth.guard";
 import { LikeStatusCommand } from "../application/use-cases/like-status";
 import { CommandBus } from "@nestjs/cqrs";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
-
+@ApiTags('Comments')
 @Controller('comments')
 export class CommentController {
     constructor(
@@ -19,6 +20,7 @@ export class CommentController {
         private commandBus: CommandBus
     ) {}
     
+    @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Put(':id/like-status')//---------------
     @HttpCode(204)
@@ -39,6 +41,7 @@ export class CommentController {
             return result;
     }
 
+    @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Put(':id')//---------------
     @HttpCode(204)
@@ -59,6 +62,7 @@ export class CommentController {
             }
     }
 
+    @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Delete(':id')//------------
     @HttpCode(204)

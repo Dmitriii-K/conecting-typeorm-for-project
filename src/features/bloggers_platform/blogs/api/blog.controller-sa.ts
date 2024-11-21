@@ -14,8 +14,10 @@ import { CommandBus } from "@nestjs/cqrs";
 import { CreatePostForBlogCommand } from "../application/use-cases/create-post-for-blog";
 import { PostService } from "../../posts/application/post.service";
 import { PostRepository } from "../../posts/repository/post.typeorm.repository";
+import { ApiBasicAuth, ApiTags } from "@nestjs/swagger";
 
-
+@ApiTags('Blogs s/a')
+@ApiBasicAuth()
 @Controller('sa/blogs')
 export class BlogControllerSa {
     constructor(

@@ -10,7 +10,10 @@ import { CreateUserCommand} from "../application/use-cases/create-user";
 import { CommandBus } from "@nestjs/cqrs";
 // import { UserRepository } from "../repository/users-sql-repository";
 import { UserRepository } from "../repository/users.typeorm.repository";
+import { ApiBasicAuth, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('Users')
+@ApiBasicAuth()
 @Controller('sa/users')
 @UseGuards(BasicAuthGuard)
 export class UserController {
@@ -21,11 +24,18 @@ export class UserController {
         private commandBus: CommandBus) {}
 
     @Get()
+    @ApiQuery({ name: 'Description', description: 'Paginations', type: TypeUserPagination })
+    @ApiResponse({ status: 200, description: 'Success', type: PaginatorUserViewModel })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
     async getUsers(@Query() query: TypeUserPagination) {
         const users: PaginatorUserViewModel = await this.userQueryRepository.getAllUsers(query);
         return users;
     }
+
     @Post()
+    @ApiResponse({ status: 201, description: 'Возвращает вновь созданного пользователя', type: UserViewModel })
+    @ApiResponse({ status: 400, description: 'If the inputModel has incorrect values.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
     async createUser(@Body() body: UserInputModel) {
         // const createResult = await this.userService.createUser(body);
         // const createResult = await this.createUserUseCase.execute(body);
@@ -36,8 +46,13 @@ export class UserController {
         const newUserDB: UserViewModel | null = await this.userQueryRepository.getUserById(createResult);
         return newUserDB;
     }
+
     @Delete(':id')
     @HttpCode(204)
+    @ApiParam({ name: 'id', description: 'User id', required: true, type: String })
+    @ApiResponse({ status: 204, description: 'No Content'})
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 404, description: 'Not Found' })
     async deleteUser(@Param('id') id: string) {
         const user = await this.userRepository.findUserById(id)
         if(!user) {

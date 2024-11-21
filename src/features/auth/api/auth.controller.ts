@@ -20,7 +20,9 @@ import { ResendEmailCommand } from "../application/use-cases/resend-email";
 import { SessionRepository } from "src/features/sessions/repository/session.typeorm.repository";
 import { ConfirmEmailCommand } from "../application/use-cases/confirm-email";
 import { AuthLogoutAndDeleteSessionCommand } from "../application/use-cases/auth-logout-and-delete-session";
+import { ApiBearerAuth, ApiSecurity, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('Auth')
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController{
@@ -70,6 +72,7 @@ export class AuthController{
     }
 
     @SkipThrottle()
+    @ApiSecurity('refreshToken')
     @UseGuards(CheckTokenAuthGuard)
     @Post('refresh-token')//-----------------
     async authRefreshToken(
@@ -124,6 +127,7 @@ export class AuthController{
     }
 
     @SkipThrottle()
+    @ApiSecurity('refreshToken')
     @UseGuards(CheckTokenAuthGuard)
     @Post('logout')//---------------------
     @HttpCode(204)
@@ -146,6 +150,7 @@ export class AuthController{
     }
 
     @SkipThrottle()
+    @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get('me')//----------------------
     async getUserInform(

@@ -23,6 +23,22 @@ config();
 
 const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, AdaptersModule, CoreModule, BloggersPlatformModule];// импортировать! 
 
+// export const getFilePath = (env: Environments) => {
+//   switch (env) {
+//     case Environments.TEST:
+//       return '.env.test';
+//     case Environments.STAGING:
+//       return '.env.staging';
+//     case Environments.DEVELOPMENT:
+//       return '.env.develop';
+//     case Environments.PRODUCTION:
+//       return '.env.production';
+//     default:
+//       return '.env';
+//   }
+// };
+
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,7 +48,8 @@ const modules = [TestingsModule, UsersModule, AuthModule, SessionsModule, Adapte
       // ignoreEnvFile:
       // process.env.ENV !== Environments.DEVELOPMENT &&
       // process.env.ENV !== Environments.TEST,
-      envFilePath: '.env'
+      envFilePath: '.env',
+      // envFilePath: [getFilePath(envs), '.env'],
     }),
     TypeOrmModule.forRootAsync(
       {

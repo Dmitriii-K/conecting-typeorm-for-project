@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsNotEmpty, IsString } from "class-validator";
 import { Trim } from "src/infrastructure/decorators/transform/trim";
 
@@ -7,6 +8,7 @@ export enum likeStatus {
     Dislike = 'Dislike'
 }
 export class LikeStatusDto {
+    @ApiProperty()
     @IsNotEmpty()
     @Trim()
     @IsEnum(likeStatus)

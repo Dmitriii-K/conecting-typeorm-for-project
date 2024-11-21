@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, PrimaryColumn
 import { randomUUID } from 'crypto';
 import { add } from "date-fns";
 
-@Entity('User')
+@Entity('Users')
 export class User {
 @PrimaryGeneratedColumn('uuid')
 id: string;
