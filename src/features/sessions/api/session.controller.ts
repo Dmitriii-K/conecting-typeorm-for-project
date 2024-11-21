@@ -4,7 +4,11 @@ import { CheckTokenAuthGuard } from "src/infrastructure/guards/dubl-guards/check
 import { SessionsService } from "../application/session.service";
 // import { SessionsQueryRepository } from "../repository/session.sql.query-repository";
 import { SessionsQueryRepository } from "../repository/session.typeorm.query-repository";
+import { ApiSecurity, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('SecurityDevices')
+@ApiSecurity('refreshToken')
+@UseGuards(CheckTokenAuthGuard)
 @Controller('security')
 export class SessionController {
     constructor(
@@ -12,7 +16,8 @@ export class SessionController {
         protected sessionsQueryRepository: SessionsQueryRepository,
     ) {}
     
-    @UseGuards(CheckTokenAuthGuard)
+    // @ApiSecurity('refreshToken')
+    // @UseGuards(CheckTokenAuthGuard)
     @Get('/devices')
     async getAllSessions(
         @Res({ passthrough: true }) res: Response,
@@ -21,7 +26,8 @@ export class SessionController {
             return sessions;
     }
 
-    @UseGuards(CheckTokenAuthGuard)
+    // @ApiSecurity('refreshToken')
+    // @UseGuards(CheckTokenAuthGuard)
     @Delete('/devices')
     @HttpCode(204)
     async deleteAllSessionsExceptCurrentOne(
@@ -35,7 +41,8 @@ export class SessionController {
             return result;
     }
 
-    @UseGuards(CheckTokenAuthGuard)
+    // @ApiSecurity('refreshToken')
+    // @UseGuards(CheckTokenAuthGuard)
     @Delete('/devices/:id')
     @HttpCode(204)
     async deleteSessionsById(

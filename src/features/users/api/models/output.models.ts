@@ -1,17 +1,27 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../../domain/user.typeorm.entity";
 
 export class UserViewModel {
+    @ApiProperty()
     id: string;
+    @ApiProperty()
     login: string;
+    @ApiProperty()
     email: string;
+    @ApiProperty()
     createdAt: Date;
 }
 
 export class PaginatorUserViewModel {
+    @ApiProperty()
     pagesCount: number;
+    @ApiProperty()
     page: number;
+    @ApiProperty()
     pageSize: number;
+    @ApiProperty()
     totalCount: number;
+    @ApiProperty()
     items: UserViewModel[];
 }
 

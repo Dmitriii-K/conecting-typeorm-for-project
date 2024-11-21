@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsNotEmpty, IsString, Length, Matches } from "class-validator";
 import { Trim } from "src/infrastructure/decorators/transform/trim";
 
@@ -15,6 +16,7 @@ export class LoginInputModel {
 }
 
 export class RegistrationEmailResending {
+    @ApiProperty()
     @IsString()
     @Trim()
     @IsNotEmpty()
@@ -24,12 +26,14 @@ export class RegistrationEmailResending {
 }
 
 export class NewPasswordRecoveryInputModel {
+    @ApiProperty()
     @IsString()
     @Trim()
     @IsNotEmpty()
     @Length(6,20)
     newPassword: string;
 
+    @ApiProperty()
     @IsString()
     @Trim()
     @IsNotEmpty()
@@ -37,6 +41,7 @@ export class NewPasswordRecoveryInputModel {
 }
 
 export class RegistrationConfirmationCodeModel {
+    @ApiProperty()
     @IsString()
     @Trim()
     @IsNotEmpty()
