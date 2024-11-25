@@ -21,7 +21,7 @@ export class PaginatorUserViewModel {
     pageSize: number;
     @ApiProperty()
     totalCount: number;
-    @ApiProperty()
+    @ApiProperty({type: [UserViewModel],})
     items: UserViewModel[];
 }
 
