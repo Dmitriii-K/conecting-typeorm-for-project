@@ -1,19 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 const request = require('supertest');
-import { AppModule } from '../src/app.module';
 import { UserInputModel } from 'src/features/users/api/models/input.models';
+import { AppModule } from 'src/app.module';
+import { Repository } from 'typeorm';
+import { User } from 'src/features/users/domain/user.typeorm.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { appUse } from 'src/app-use';
+
 
 describe('UserController (e2e)', () => {
     let app: INestApplication;
+    let moduleFixture: TestingModule
 
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
+        moduleFixture = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();
-
+        
         app = moduleFixture.createNestApplication();
+        appUse(app);
         await app.init();
+    });
+
+    beforeEach(async () => {
+        const userRepository = moduleFixture.get<Repository<User>>(getRepositoryToken(User))
+        // Очищаем базу данных перед каждым тестом
+        await userRepository.clear();
     });
 
     afterAll(async () => {
@@ -31,9 +44,9 @@ describe('UserController (e2e)', () => {
 
     it('/sa/users (POST)', async () => {
         const userInput: UserInputModel = {
-            login: 'testuser',
-            password: 'testpassword',
-            email: 'testuser@example.com',
+            login: 'login777',
+            password: 'string',
+            email: 'Ai777@mail.ru',
         };
 
         const response = await request(app.getHttpServer())
@@ -49,9 +62,9 @@ describe('UserController (e2e)', () => {
 
     it('/sa/users/:id (DELETE)', async () => {
         const userInput: UserInputModel = {
-            login: 'testuser2',
-            password: 'testpassword2',
-            email: 'testuser2@example.com',
+            login: 'login222',
+            password: 'string',
+            email: 'Ai222@mail.ru',
         };
 
         const createResponse = await request(app.getHttpServer())
